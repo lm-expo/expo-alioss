@@ -1,31 +1,22 @@
-buildscript {
-    if (project == rootProject) {
-        repositories {
-            google()
-            mavenCentral()
-        }
-
-        dependencies {
-            classpath 'com.android.tools.build:gradle:3.5.3'
-        }
-    }
-}
-
 apply plugin: 'com.android.library'
 
 def safeExtGet(prop, fallback) {
     rootProject.ext.has(prop) ? rootProject.ext.get(prop) : fallback
 }
 
+def supportsNamespace = project.android.hasProperty("namespace")
+def supportsLintDsl = project.android.hasProperty("lint")
+
 android {
-    compileSdkVersion safeExtGet('Alioss_compileSdkVersion', 30)
-    buildToolsVersion safeExtGet('Alioss_buildToolsVersion', '30.0.0')
+    if (supportsNamespace) {
+        namespace "com.reactnativealioss"
+    }
+    compileSdkVersion safeExtGet('Alioss_compileSdkVersion', 35)
     defaultConfig {
         minSdkVersion safeExtGet('Alioss_minSdkVersion', 21)
-        targetSdkVersion safeExtGet('Alioss_targetSdkVersion', 30)
+        targetSdkVersion safeExtGet('Alioss_targetSdkVersion', 35)
         versionCode 1
         versionName "1.0"
-
     }
 
     buildTypes {
@@ -33,8 +24,14 @@ android {
             minifyEnabled false
         }
     }
-    lintOptions {
-        disable 'GradleCompatible'
+    if (supportsLintDsl) {
+        lint {
+            disable += 'GradleCompatible'
+        }
+    } else {
+        lintOptions {
+            disable 'GradleCompatible'
+        }
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
@@ -44,16 +41,11 @@ android {
 
 repositories {
     mavenLocal()
-    maven {
-        // All of React Native (JS, Obj-C sources, Android binaries) is installed from npm
-        url("$rootDir/../node_modules/react-native/android")
-    }
     google()
     mavenCentral()
 }
 
 dependencies {
-    //noinspection GradleDynamicVersion
-    implementation "com.facebook.react:react-native:+"  // From node_modules
+    implementation "com.facebook.react:react-android"
     implementation 'com.aliyun.dpa:oss-android-sdk:+'
 }

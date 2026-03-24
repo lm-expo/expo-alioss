@@ -1,6 +1,6 @@
 {
-  "name": "@lm/rn-alioss",
-  "version": "0.0.1",
+  "name": "react-native-alioss",
+  "version": "0.2.5",
   "description": "aliyun oss for react native",
   "main": "lib/commonjs/index",
   "module": "lib/module/index",
@@ -13,6 +13,7 @@
     "android",
     "ios",
     "cpp",
+    "react-native.config.js",
     "react-native-alioss.podspec",
     "!lib/typescript/example",
     "!android/build",
@@ -44,7 +45,8 @@
   },
   "homepage": "https://github.com/hufans/react-native-alioss.git#readme",
   "publishConfig": {
-    "registry": "https://registry.npmjs.org/"
+    "registry": "https://registry.npmjs.org/",
+    "access": "public"
   },
   "devDependencies": {
     "@commitlint/config-conventional": "^11.0.0",

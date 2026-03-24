@@ -1,14 +1,27 @@
 import {
   DeviceEventEmitter,
+  EmitterSubscription,
   NativeEventEmitter,
   NativeModules,
   Platform,
-  EmitterSubscription,
 } from 'react-native';
 
-const { AliOss } = NativeModules;
-
 let subscription: EmitterSubscription;
+
+const nativeModuleMissingMessage =
+  `The package 'react-native-alioss' native module is unavailable.\n\n` +
+  `Make sure you are running a rebuilt Expo dev client or production build instead of Expo Go, ` +
+  `then run a clean native rebuild after installing this package.`;
+
+const getAliOssModule = () => {
+  const nativeModule = NativeModules.AliOss;
+
+  if (!nativeModule) {
+    throw new Error(nativeModuleMissingMessage);
+  }
+
+  return nativeModule;
+};
 
 type OSSinit = {
   maxRetryCount: number;
@@ -58,7 +71,7 @@ const appendOptions: AppendType = {
 const AliyunOSS = {
   //Enable dev mode
   enableDevMode() {
-    AliOss.enableDevMode();
+    getAliOssModule().enableDevMode();
   },
 
   /**
@@ -71,7 +84,7 @@ const AliyunOSS = {
     endPoint: string,
     configuration = conf
   ) {
-    AliOss.initWithPlainTextAccessKey(
+    getAliOssModule().initWithPlainTextAccessKey(
       accessKey,
       secretKey,
       endPoint,
@@ -89,7 +102,7 @@ const AliyunOSS = {
     endPoint: string,
     configuration = conf
   ) {
-    AliOss.initWithImplementedSigner(
+    getAliOssModule().initWithImplementedSigner(
       signature,
       accessKey,
       endPoint,
@@ -108,7 +121,7 @@ const AliyunOSS = {
     endPoint: string,
     configuration = conf
   ) {
-    AliOss.initWithSecurityToken(
+    getAliOssModule().initWithSecurityToken(
       securityToken,
       accessKey,
       secretKey,
@@ -120,9 +133,9 @@ const AliyunOSS = {
   /**
    * Initialize the OSS Client
    * Server STS
-   */
+  */
   initWithServerSTS(server: string, endPoint: string, configuration = conf) {
-    AliOss.initWithServerSTS(server, endPoint, configuration);
+    getAliOssModule().initWithServerSTS(server, endPoint, configuration);
   },
 
   /**
@@ -134,7 +147,12 @@ const AliyunOSS = {
     filepath: string,
     options = {}
   ): Promise<any> {
-    return AliOss.asyncUpload(bucketName, objectKey, filepath, options);
+    return getAliOssModule().asyncUpload(
+      bucketName,
+      objectKey,
+      filepath,
+      options
+    );
   },
 
   /**
@@ -146,7 +164,7 @@ const AliyunOSS = {
     filepath = '',
     options = {}
   ): Promise<any> {
-    return AliOss.asyncResumableUpload(
+    return getAliOssModule().asyncResumableUpload(
       bucketName,
       objectKey,
       filepath,
@@ -163,14 +181,19 @@ const AliyunOSS = {
     filepath: string,
     options = appendOptions
   ): Promise<any> {
-    return AliOss.asyncAppendObject(bucketName, objectKey, filepath, options);
+    return getAliOssModule().asyncAppendObject(
+      bucketName,
+      objectKey,
+      filepath,
+      options
+    );
   },
 
   /**
    * Asynchronously
-   */
+  */
   initMultipartUpload(bucketName: string, objectKey: string): Promise<any> {
-    return AliOss.initMultipartUpload(bucketName, objectKey);
+    return getAliOssModule().initMultipartUpload(bucketName, objectKey);
   },
 
   /**
@@ -183,7 +206,7 @@ const AliyunOSS = {
     filepath = '',
     options = mulitpartUploadConfig
   ): Promise<any> {
-    return AliOss.multipartUpload(
+    return getAliOssModule().multipartUpload(
       bucketName,
       objectKey,
       uploadId,
@@ -200,7 +223,7 @@ const AliyunOSS = {
     objectKey: string,
     uploadId: string
   ): Promise<any> {
-    return AliOss.listParts(bucketName, objectKey, uploadId);
+    return getAliOssModule().listParts(bucketName, objectKey, uploadId);
   },
   /**
    * Asynchronously abortMultipartUpload
@@ -210,7 +233,11 @@ const AliyunOSS = {
     objectKey: string,
     uploadId: string
   ): Promise<any> {
-    return AliOss.abortMultipartUpload(bucketName, objectKey, uploadId);
+    return getAliOssModule().abortMultipartUpload(
+      bucketName,
+      objectKey,
+      uploadId
+    );
   },
 
   /**
@@ -222,7 +249,12 @@ const AliyunOSS = {
     filepath = '',
     options = imageXOssProcess
   ): Promise<any> {
-    return AliOss.asyncDownload(bucketName, objectKey, filepath, options);
+    return getAliOssModule().asyncDownload(
+      bucketName,
+      objectKey,
+      filepath,
+      options
+    );
   },
 
   /*
@@ -230,7 +262,7 @@ const AliyunOSS = {
     */
 
   asyncListBuckets(): Promise<any> {
-    return AliOss.asyncListBuckets();
+    return getAliOssModule().asyncListBuckets();
   },
 
   /**
@@ -238,7 +270,7 @@ const AliyunOSS = {
    */
 
   asyncHeadObject(bucketName: string, objectKey: string): Promise<any> {
-    return AliOss.asyncHeadObject(bucketName, objectKey);
+    return getAliOssModule().asyncHeadObject(bucketName, objectKey);
   },
 
   /**
@@ -246,7 +278,7 @@ const AliyunOSS = {
    */
 
   asyncListObjects(bucketName: string, options?: OssListOptions): Promise<any> {
-    return AliOss.asyncListObjects(bucketName, options);
+    return getAliOssModule().asyncListObjects(bucketName, options);
   },
 
   /**
@@ -260,7 +292,7 @@ const AliyunOSS = {
     destObjectKey: string,
     options: any
   ): Promise<any> {
-    return AliOss.asyncCopyObject(
+    return getAliOssModule().asyncCopyObject(
       srcBucketName,
       srcObjectKey,
       desBucketName,
@@ -274,7 +306,7 @@ const AliyunOSS = {
    */
 
   doesObjectExist(bucketName: string, objectKey: string): Promise<any> {
-    return AliOss.doesObjectExist(bucketName, objectKey);
+    return getAliOssModule().doesObjectExist(bucketName, objectKey);
   },
 
   /**
@@ -282,7 +314,7 @@ const AliyunOSS = {
    */
 
   asyncDeleteObject(bucketName: string, objectKey: string): Promise<any> {
-    return AliOss.asyncDeleteObject(bucketName, objectKey);
+    return getAliOssModule().asyncDeleteObject(bucketName, objectKey);
   },
 
   /**
@@ -293,21 +325,21 @@ const AliyunOSS = {
     acl = 'private',
     region: string
   ): Promise<any> {
-    return AliOss.asyncCreateBucket(bucketName, acl, region);
+    return getAliOssModule().asyncCreateBucket(bucketName, acl, region);
   },
 
   /**
    * Asynchronously getBucketACL
    */
   asyncGetBucketACL(bucketName: string): Promise<any> {
-    return AliOss.asyncGetBucketACL(bucketName);
+    return getAliOssModule().asyncGetBucketACL(bucketName);
   },
 
   /**
    * Asynchronously deleteBucket
    */
   asyncDeleteBucket(bucketName: string): Promise<any> {
-    return AliOss.asyncDeleteBucket(bucketName);
+    return getAliOssModule().asyncDeleteBucket(bucketName);
   },
 
   /**
@@ -318,7 +350,7 @@ const AliyunOSS = {
   addEventListener(event: any, callback: any) {
     const RNAliyunEmitter =
       Platform.OS === 'ios'
-        ? new NativeEventEmitter(AliOss)
+        ? new NativeEventEmitter(getAliOssModule())
         : DeviceEventEmitter;
     switch (event) {
       case 'uploadProgress':
