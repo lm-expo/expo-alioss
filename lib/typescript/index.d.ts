@@ -36,7 +36,7 @@ declare const AliyunOSS: {
     /**
      * Initialize the OSS Client
      * Server STS
-     */
+    */
     initWithServerSTS(server: string, endPoint: string, configuration?: OSSinit): void;
     /**
      * Asynchronously uploading
@@ -52,7 +52,7 @@ declare const AliyunOSS: {
     asyncAppendObject(bucketName: string, objectKey: string, filepath: string, options?: AppendType): Promise<any>;
     /**
      * Asynchronously
-     */
+    */
     initMultipartUpload(bucketName: string, objectKey: string): Promise<any>;
     /**
      * Asynchronously multipartUpload
